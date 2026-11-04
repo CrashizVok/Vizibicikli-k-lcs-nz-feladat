@@ -16,9 +16,13 @@ public class Main {
         //INIT
         read();
         System.out.print("5. feladat: ");
-        Napi_kolcsonzesek();
+        //Napi_kolcsonzesek();
         System.out.print("6. feladat: ");
-        kerek_egynevet();
+        //kerek_egynevet();
+        System.out.print("7. feladat: ");
+        //adjonmegegyidopontotorapercarakban();
+        System.out.println("8. feladat: ");
+        anapibevetel();
 
     }
 
@@ -55,18 +59,97 @@ public class Main {
 
         System.out.print("Kérek egy nevet: ");
         String iNname = obj.nextLine();
-        System.out.println(iNname + " kölcsönzései: ");
+        System.out.println("        " + iNname + " kölcsönzései: ");
 
-        kolcsonzesek.stream()
-                .filter(name -> Objects.equals(name.getName(), iNname))
-                .forEach(object -> {
-                    String sol = object.getIn_hour() + ":"
-                            + object.getIn_minutes() + "-"
-                            + object.getOut_hour() + ":"
-                            + object.getOut_minutes();
+        if (kolcsonzesek.stream()
+                .noneMatch(name -> Objects.equals(name.getName(), iNname))) {
+            System.out.println("        Nem volt ilyen nevű kölcsönző");
 
-                    System.out.println(sol);
-                });
+        } else {
+            kolcsonzesek.stream()
+                    .filter(name -> Objects.equals(name.getName(), iNname))
+                    .forEach(object -> {
+                        String sol = object.getIn_hour() + ":"
+                                + object.getIn_minutes() + "-"
+                                + object.getOut_hour() + ":"
+                                + object.getOut_minutes();
+
+                        System.out.println("        " + sol);
+                    });
+        }
+    }
+
+    public static void adjonmegegyidopontotorapercarakban(){
+        Scanner obj = new Scanner(System.in);
+
+        System.out.print("Adjon meg egy időpontot óra:perc alakban: ");
+        String time = obj.nextLine();
+
+
+        String[] splittedTime = time.split(":");
+        int hour = Integer.parseInt(splittedTime[0]);
+        int minutes = Integer.parseInt(splittedTime[1]);
+        if (minutes > 60) {
+            System.out.println("        Nem ismered az órát?");
+            return;
+        }
+        if (minutes < 0) {
+            System.out.println("        Nem ismered az órát?");
+            return;
+        }
+        if (hour < 0) {
+            System.out.println("        Nem ismered az órát?");
+            return;
+        }
+
+        int finalTime = Integer.parseInt(numberHelper(hour) + numberHelper(minutes));
+
+        System.out.println("        A vizen lévő járművek: ");
+        for (Kolcsonzes kolcsonz : kolcsonzesek){
+            int InKhour = kolcsonz.getIn_hour();
+            int InKminutes = kolcsonz.getIn_minutes();
+            int InKfinalTime = Integer.parseInt(InKhour + numberHelper(InKminutes));
+
+            int OutKhour = kolcsonz.getOut_hour();
+            int OutKminutes = kolcsonz.getOut_minutes();
+            int OutKfinalTime = Integer.parseInt(OutKhour + numberHelper(OutKminutes));
+
+
+            if (finalTime >= InKfinalTime && finalTime <= OutKfinalTime){
+                System.out.println("        " + numberHelper(kolcsonz.getIn_hour()) + ":" + numberHelper(kolcsonz.getIn_minutes()) + "-" + numberHelper(kolcsonz.getOut_hour()) + ":" + numberHelper(kolcsonz.getOut_minutes()) + " : " + kolcsonz.getName());
+            }
+        }
+    }
+
+    public static void anapibevetel(){
+        int price = 2400;
+        double finalMinutes = 0;
+        for (Kolcsonzes kolcsonz : kolcsonzesek){
+            int InHour = kolcsonz.getIn_hour();
+            int InMinutes =  kolcsonz.getIn_minutes();
+            int OutHour = kolcsonz.getOut_hour();
+            int OutMinutes = kolcsonz.getOut_minutes();
+
+            int hour = OutHour - InHour;
+            int minutes = OutMinutes - InMinutes;
+
+            finalMinutes += (hour * 60) + minutes;
+        }
+
+        System.out.println(Math.ceil(finalMinutes / 30.0) * price);
+    }
+
+    public static void statisztika(){
+
+    }
+
+    public static String numberHelper(int number){
+        if (number < 10) {
+            return "0" + number;
+        }
+        else{
+            return number + "";
+        }
     }
 }
 
