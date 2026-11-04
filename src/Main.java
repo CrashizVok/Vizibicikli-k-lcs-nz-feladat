@@ -135,7 +135,6 @@ public class Main {
 
             finalMinutes += (hour * 60) + minutes;
         }
-
         System.out.println(Math.ceil(finalMinutes / 30.0) * price);
     }
 
