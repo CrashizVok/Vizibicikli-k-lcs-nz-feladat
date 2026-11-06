@@ -1,8 +1,6 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Scanner;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -12,18 +10,20 @@ public class Main {
     static String filename = "f.txt";
 
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         //INIT
         read();
         System.out.print("5. feladat: ");
-        //Napi_kolcsonzesek();
+        Napi_kolcsonzesek();
         System.out.print("6. feladat: ");
-        //kerek_egynevet();
+        kerek_egynevet();
         System.out.print("7. feladat: ");
-        //adjonmegegyidopontotorapercarakban();
-        System.out.println("8. feladat: ");
+        adjonmegegyidopontotorapercarakban();
+        System.out.print("8. feladat: ");
         anapibevetel();
-
+        elkovetok();
+        System.out.println("10. feladat: Statisztika");
+        statisztika();
     }
 
     public static void read() throws FileNotFoundException {
@@ -123,23 +123,46 @@ public class Main {
 
     public static void anapibevetel(){
         int price = 2400;
-        double finalMinutes = 0;
+        int sum = 0;
         for (Kolcsonzes kolcsonz : kolcsonzesek){
-            int InHour = kolcsonz.getIn_hour();
-            int InMinutes =  kolcsonz.getIn_minutes();
-            int OutHour = kolcsonz.getOut_hour();
-            int OutMinutes = kolcsonz.getOut_minutes();
+            int minutes = (kolcsonz.getOut_hour() * 60 + kolcsonz.getOut_minutes())
+                    - (kolcsonz.getIn_hour() * 60 + kolcsonz.getIn_minutes());
 
-            int hour = OutHour - InHour;
-            int minutes = OutMinutes - InMinutes;
-
-            finalMinutes += (hour * 60) + minutes;
+            sum += (int) Math.ceil(minutes / 30.0) * price;
         }
-        System.out.println(Math.ceil(finalMinutes / 30.0) * price);
+        System.out.println("A napi bevétel: " + sum + " Ft");
     }
 
-    public static void statisztika(){
+    public static void elkovetok() throws IOException {
+        PrintWriter writer = new PrintWriter("F.txt", StandardCharsets.UTF_8);
+        for (Kolcsonzes kolcsonz : kolcsonzesek) {
+            if (kolcsonz.getId().equals("F")) {
+                writer.println(numberHelper(kolcsonz.getOut_hour()) + ":" + numberHelper(kolcsonz.getOut_minutes())
+                        + "-" + numberHelper(kolcsonz.getIn_hour()) + ":" + numberHelper(kolcsonz.getIn_minutes())
+                        + " : " + kolcsonz.getName());
+            }
+        }
+        writer.close();
+    }
 
+    public static void statisztika() {
+        ArrayList<String> idk = new ArrayList<>();
+        for (Kolcsonzes kolcsonz : kolcsonzesek) {
+            if (!idk.contains(kolcsonz.getId())) {
+                idk.add(kolcsonz.getId());
+            }
+        }
+        Collections.sort(idk);
+
+        for (String id : idk) {
+            int db = 0;
+            for (Kolcsonzes kolcsonz : kolcsonzesek) {
+                if (kolcsonz.getId().equals(id)) {
+                    db++;
+                }
+            }
+            System.out.println("        " + id + " - " + db);
+        }
     }
 
     public static String numberHelper(int number){
